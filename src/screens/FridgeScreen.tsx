@@ -3,165 +3,139 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
+  ScrollView,
   TouchableOpacity,
-  TextInput,
   Platform,
   StatusBar,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-interface FoodItem {
-  id: string;
-  name: string;
-  category: string;
-  expirationDate: string;
-  quantityValue?: number;
-  quantityUnit?: string;
-}
+// 🔹 더미 데이터
+const dummyFridgeItems = [
+  { id: '1', name: '양상추', category: '채소', location: '야채칸' },
+  { id: '2', name: '오이', category: '채소', location: '야채칸' },
+  { id: '3', name: '사과', category: '과일', location: '과일칸' },
+  { id: '4', name: '바나나', category: '과일', location: '과일칸' },
+  { id: '5', name: '김치', category: '반찬', location: '문쪽칸' },
+];
 
 export default function FridgeScreen() {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+
+  // 🔸 위치별로 그룹화
+  const groupedFoods: Record<string, typeof dummyFridgeItems> = {};
+  dummyFridgeItems.forEach((item) => {
+    const loc = item.location || '미지정';
+    if (!groupedFoods[loc]) groupedFoods[loc] = [];
+    groupedFoods[loc].push(item);
+  });
+
   const topPadding = Platform.OS === 'android' ? StatusBar.currentHeight ?? 24 : 0;
 
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const dummyFoods: FoodItem[] = [
-    {
-      id: '1',
-      name: '우유',
-      category: '유제품',
-      expirationDate: '2025-05-12',
-      quantityValue: 1,
-      quantityUnit: '팩',
-    },
-    {
-      id: '2',
-      name: '계란',
-      category: '육류',
-      expirationDate: '2025-05-10',
-      quantityValue: 10,
-      quantityUnit: '개',
-    },
-  ];
-
-  const renderItem = ({ item }: { item: FoodItem }) => (
-    <View style={styles.card}>
-      <Text style={styles.foodName}>{item.name}</Text>
-      <Text style={styles.expiration}>유통기한: {item.expirationDate}</Text>
-      <Text style={styles.category}>카테고리: {item.category}</Text>
-      <Text style={styles.quantityText}>
-        수량: {item.quantityValue} {item.quantityUnit}
-      </Text>
-      <TouchableOpacity style={styles.deleteBtn}>
-        <Text style={styles.deleteText}>삭제</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
   return (
-    <View style={[styles.container, { paddingTop: topPadding }]}>
-      <View style={styles.header}>
-        <Text style={styles.title}>📦 내 냉장고</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('AddFood')}>
-          <Text style={styles.addButton}>+ 식품 등록</Text>
+    <ScrollView style={[styles.container, { paddingTop: topPadding }]}>
+      <Text style={styles.title}>🧊 냉장고 위치별 보기</Text>
+
+      {Object.entries(groupedFoods).map(([location, items]) => (
+        <TouchableOpacity
+          key={location}
+          onPress={() => setSelectedLocation(location)}
+          style={styles.card}
+        >
+          <Text style={styles.location}>{location}</Text>
+          <Text style={styles.count}>총 {items.length}개</Text>
+        </TouchableOpacity>
+      ))}
+
+      {selectedLocation && (
+        <View style={styles.detailBox}>
+          <Text style={styles.detailTitle}>📍 {selectedLocation}에 있는 식품</Text>
+          {groupedFoods[selectedLocation].map((item) => (
+            <View key={item.id} style={styles.itemRow}>
+              <Text style={styles.itemName}>• {item.name}</Text>
+              <Text style={styles.itemSub}>{item.category}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {/* 하단 구조 설정 버튼 */}
+      <View style={{ marginTop: 40, marginBottom: 30, alignItems: 'center' }}>
+        <TouchableOpacity
+          style={styles.settingButton}
+          onPress={() => navigation.navigate('FridgeMapping' as never)}
+        >
+          <Text style={styles.settingButtonText}>+ 냉장고 구조 설정/수정하기</Text>
         </TouchableOpacity>
       </View>
-
-      <TextInput
-        style={styles.searchInput}
-        placeholder="식품명 또는 카테고리로 검색"
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-      />
-
-      <TouchableOpacity
-        style={{ alignSelf: 'flex-end', marginBottom: 5 }}
-        onPress={() => navigation.navigate('FridgeMapping')}
-      >
-        <Text style={{ color: '#4DA8DA', fontWeight: 'bold' }}>냉장고 구조 관리 →</Text>
-      </TouchableOpacity>
-
-      <FlatList
-        data={dummyFoods}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#E6F4FA',
+    flex: 1,
     paddingHorizontal: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
     color: '#2C3E50',
-  },
-  addButton: {
-    fontSize: 16,
-    color: '#4DA8DA',
-    fontWeight: '600',
-  },
-  searchInput: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginVertical: 15,
+    marginBottom: 20,
   },
   card: {
     backgroundColor: '#FFFFFF',
-    padding: 15,
-    borderRadius: 12,
+    borderRadius: 10,
+    padding: 14,
     marginBottom: 10,
-    marginTop: 15,
     shadowColor: '#000',
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
+    shadowRadius: 4,
   },
-  foodName: {
+  location: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#2F2F2F',
+    fontWeight: 'bold',
+    color: '#4DA8DA',
   },
-  expiration: {
+  count: {
     fontSize: 14,
-    marginTop: 5,
-    color: '#444',
+    color: '#666',
   },
-  category: {
+  detailBox: {
+    marginTop: 25,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 16,
+  },
+  detailTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#2C3E50',
+    marginBottom: 10,
+  },
+  itemRow: {
+    marginBottom: 6,
+  },
+  itemName: {
+    fontSize: 15,
+    color: '#2C3E50',
+  },
+  itemSub: {
     fontSize: 13,
     color: '#888',
+    marginLeft: 10,
   },
-  quantityText: {
-    fontSize: 14,
-    color: '#2C3E50',
-    marginTop: 6,
-    fontWeight: '400',
-  },
-  deleteBtn: {
-    marginTop: 8,
+  settingButton: {
     backgroundColor: '#4DA8DA',
-    padding: 6,
-    borderRadius: 6,
-    alignSelf: 'flex-start',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
   },
-  deleteText: {
+  settingButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 });

@@ -1,3 +1,4 @@
+// ✅ src/screens/HomeScreen.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -9,14 +10,30 @@ import {
   StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
 
-export default function HomeScreen({ navigation }: any) {
+export default function HomeScreen() {
   const topPadding = Platform.OS === 'android' ? StatusBar.currentHeight ?? 24 : 0;
+  const navigation = useNavigation<any>();
 
-  const [userName] = useState('수아'); // 하드코딩된 이름
+  const [userName] = useState('수아');
+
   const dummyExpiringFoods = [
     { id: '1', name: '우유', expirationDate: '2025-05-10' },
     { id: '2', name: '계란', expirationDate: '2025-05-11' },
+  ];
+
+  const dummyRecipes = [
+    {
+      title: '토마토 파스타',
+      steps: [
+        '재료 준비',
+        '면 삶기',
+        '소스 만들기',
+        '섞기',
+        '완성!',
+      ],
+    },
   ];
 
   const formatDday = (dateStr: string) => {
@@ -58,6 +75,20 @@ export default function HomeScreen({ navigation }: any) {
             <Text style={styles.buttonText}>전체 보기</Text>
           </TouchableOpacity>
         </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🍽 오늘의 추천 레시피</Text>
+          {dummyRecipes.map((recipe, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.recipeCard}
+              onPress={() => navigation.navigate('RecipeDetail', recipe)}
+            >
+              <Text style={styles.foodName}>{recipe.title}</Text>
+              <Text style={styles.foodExpiry}>지금 바로 만들어보세요!</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
     </View>
   );
@@ -89,6 +120,7 @@ const styles = StyleSheet.create({
     marginVertical: 15,
     padding: 15,
     borderRadius: 12,
+    backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
@@ -110,10 +142,6 @@ const styles = StyleSheet.create({
     padding: 12,
     borderWidth: 1,
     borderColor: '#aaadb3',
-    shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 4,
   },
   foodName: {
     fontSize: 16,
@@ -134,5 +162,13 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     textAlign: 'center',
+  },
+  recipeCard: {
+    marginTop: 10,
+    padding: 12,
+    backgroundColor: '#fff6e5',
+    borderRadius: 10,
+    borderColor: '#FFDCA8',
+    borderWidth: 1,
   },
 });
