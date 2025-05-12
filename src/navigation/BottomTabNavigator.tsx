@@ -1,19 +1,31 @@
-/*
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
+import { RouteProp } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
+
 import HomeScreen from '../screens/HomeScreen';
 import FridgeScreen from '../screens/FridgeScreen';
 import WasteScreen from '../screens/WasteScreen';
 import RecipeScreen from '../screens/RecipeScreen';
-import Icon from 'react-native-vector-icons/Ionicons';
 
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabNavigator() {
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ color, size }) => {
+      screenOptions={({
+        route,
+      }: {
+        route: RouteProp<Record<string, object | undefined>, string>;
+      }): BottomTabNavigationOptions => ({
+        tabBarIcon: ({
+          color,
+          size,
+        }: {
+          color: string;
+          size: number;
+        }) => {
           let iconName: string = '';
 
           if (route.name === 'Home') iconName = 'home-outline';
@@ -23,7 +35,7 @@ export default function BottomTabNavigator() {
 
           return <Icon name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#FFA94D',
+        tabBarActiveTintColor: '#4DA8DA',
         tabBarInactiveTintColor: 'gray',
         headerShown: false,
       })}
@@ -35,4 +47,3 @@ export default function BottomTabNavigator() {
     </Tab.Navigator>
   );
 }
-*/
