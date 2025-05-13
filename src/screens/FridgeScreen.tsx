@@ -1,3 +1,11 @@
+/**
+ * 변경 이력:
+ * 1. 2025-05-13: 냉장고 그래픽 UI 추가 및 식재료 목록 디자인 개선
+ * 2. 2025-05-13: 배경색을 #F5FAFF로 통일 (WasteStatsScreen과 일치)
+ * 3. 2025-05-13: 타이틀 스타일 통일
+ * 4. 2025-05-13: 네비게이션 타입 안전성 강화 및 AddFoodScreen 경로 수정
+ */
+
 import React, { useState } from 'react';
 import {
   View,
