@@ -1,3 +1,9 @@
+/**
+ * 변경 이력:
+ * 1. 2025-05-13: UI 디자인 개선 및 배경색 통일
+ * 2. 2025-05-13: Picker를 카드 형태의 버튼으로 변경하고 모달 방식의 카테고리 및 보관 장소 선택 UI 추가
+ * 3. 2025-05-13: 타이틀 스타일을 FridgeScreen과 동일하게 조정 및 아보카도 이모티콘 추가
+ */
 import React, { useState } from 'react';
 import {
   View,
@@ -6,11 +12,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Button,
   Platform,
   StatusBar,
+  Modal,
+  TouchableWithoutFeedback,
+  KeyboardAvoidingView
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 const formatKoreanDate = (date: Date) => {
@@ -22,201 +29,270 @@ const formatKoreanDate = (date: Date) => {
   });
 };
 
-export default function AddFoodScreen() {
-  const [category, setCategory] = useState('');
-  const [itemName, setItemName] = useState('');
-  const [unitAmount, setUnitAmount] = useState('');
-  const [unitPrice, setUnitPrice] = useState('');
-  const [expireDate, setExpireDate] = useState<Date | null>(null);
+const categories = [
+  { id: 'vegetable', name: '채소' },
+  { id: 'fruit', name: '과일' },
+  { id: 'meat', name: '정육·계란' },
+  { id: 'seafood', name: '수산·해산물' },
+  { id: 'dairy', name: '유제품' },
+  { id: 'grain', name: '곡류' },
+  { id: 'sauce', name: '소스·조미료' },
+  { id: 'beverage', name: '음료' },
+  { id: 'etc', name: '기타' },
+];
+
+const storageTypes = [
+  { id: 'refrigerator', name: '냉장실' },
+  { id: 'freezer', name: '냉동실' },
+  { id: 'roomTemp', name: '실온보관' },
+];
+
+const AddFoodScreen = () => {
+  const [foodName, setFoodName] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedStorage, setSelectedStorage] = useState('');
+  const [expiryDate, setExpiryDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [customUnit, setCustomUnit] = useState('');
-  const [quantity, setQuantity] = useState(1);
-  const [selectedLocationId, setSelectedLocationId] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState<'category' | 'storage'>('category');
 
   const topPadding = Platform.OS === 'android' ? StatusBar.currentHeight ?? 24 : 0;
 
-  const categoryOptions = ['채소', '과일', '육류', '기타'];
-
-  const handleDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    setShowDatePicker(false);
-    if (selectedDate) setExpireDate(selectedDate);
+  const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setExpiryDate(selectedDate);
+    }
   };
 
+  const renderModal = () => (
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={modalVisible}
+      onRequestClose={() => setModalVisible(false)}
+    >
+      <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+        <View style={styles.modalOverlay} />
+      </TouchableWithoutFeedback>
+      <View style={styles.modalContent}>
+        <Text style={styles.modalTitle}>
+          {modalType === 'category' ? '카테고리 선택' : '보관 장소 선택'}
+        </Text>
+        <ScrollView style={styles.modalScrollView}>
+          {(modalType === 'category' ? categories : storageTypes).map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.modalItem}
+              onPress={() => {
+                if (modalType === 'category') {
+                  setSelectedCategory(item.id);
+                } else {
+                  setSelectedStorage(item.id);
+                }
+                setModalVisible(false);
+              }}
+            >
+              <Text style={styles.modalItemText}>{item.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+    </Modal>
+  );
+
   return (
-    <View style={[styles.wrapper, { paddingTop: topPadding }]}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>식품 등록</Text>
-
-        <Text style={styles.label}>카테고리</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker selectedValue={category} onValueChange={setCategory}>
-            <Picker.Item label="카테고리 선택" value="" />
-            {categoryOptions.map((cat) => (
-              <Picker.Item key={cat} label={cat} value={cat} />
-            ))}
-          </Picker>
-        </View>
-
-        {category && category !== '기타' && (
-          <>
-            <Text style={styles.label}>식품명</Text>
-            <TextInput
-              value={itemName}
-              onChangeText={setItemName}
-              placeholder="예: 양상추"
-              style={styles.input}
-            />
-
-            <Text style={styles.label}>수량 단위</Text>
-            <TextInput
-              value={unitAmount}
-              onChangeText={setUnitAmount}
-              placeholder="예: 개, 봉지 등"
-              style={styles.input}
-            />
-          </>
-        )}
-
-        {category === '기타' && (
-          <>
-            <Text style={styles.label}>식품명 (직접 입력)</Text>
-            <TextInput
-              value={itemName}
-              onChangeText={setItemName}
-              placeholder="예: 마카다미아"
-              style={styles.input}
-            />
-
-            <Text style={styles.label}>단위 (예: 개, g 등)</Text>
-            <TextInput
-              value={customUnit}
-              onChangeText={setCustomUnit}
-              placeholder="예: 개"
-              style={styles.input}
-            />
-
-            <Text style={styles.label}>수량</Text>
-            <View style={styles.stepperRow}>
-              <TouchableOpacity onPress={() => setQuantity(Math.max(1, quantity - 1))} style={styles.stepBtn}>
-                <Text style={styles.stepText}>-</Text>
-              </TouchableOpacity>
-              <Text style={styles.qtyText}>{quantity}</Text>
-              <TouchableOpacity onPress={() => setQuantity(quantity + 1)} style={styles.stepBtn}>
-                <Text style={styles.stepText}>+</Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        )}
-
-        <Text style={styles.label}>단가 (선택)</Text>
-        <TextInput
-          value={unitPrice}
-          onChangeText={setUnitPrice}
-          keyboardType="numeric"
-          style={styles.input}
-        />
-
-        <Text style={styles.label}>냉장고 위치</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker selectedValue={selectedLocationId} onValueChange={setSelectedLocationId}>
-            <Picker.Item label="위치 선택" value="" />
-            <Picker.Item label="냉장실 1번칸" value="1" />
-            <Picker.Item label="야채칸" value="2" />
-            <Picker.Item label="문쪽" value="3" />
-          </Picker>
-        </View>
-
-        <Text style={styles.label}>유통기한 직접 선택</Text>
-        <Button
-          title={expireDate ? formatKoreanDate(expireDate) : '날짜 선택'}
-          onPress={() => setShowDatePicker(true)}
-          color="#4DA8DA"
-        />
-        {showDatePicker && (
-          <DateTimePicker
-            value={expireDate || new Date()}
-            mode="date"
-            display="default"
-            onChange={handleDateChange}
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView 
+        style={[styles.scrollView, { paddingTop: topPadding }]}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <Text style={styles.title}>🥑 새로운 식재료 등록</Text>
+        
+        <View style={styles.section}>
+          <Text style={styles.label}>식재료 이름</Text>
+          <TextInput
+            style={styles.input}
+            value={foodName}
+            onChangeText={setFoodName}
+            placeholder="예) 사과, 우유, 계란"
+            placeholderTextColor="#999"
           />
-        )}
+        </View>
 
-        <TouchableOpacity style={styles.submitBtn}>
-          <Text style={styles.submitText}>등록하기 (미동작)</Text>
+        <View style={styles.section}>
+          <Text style={styles.label}>카테고리</Text>
+          <TouchableOpacity 
+            style={styles.pickerButton}
+            onPress={() => {
+              setModalType('category');
+              setModalVisible(true);
+            }}
+          >
+            <Text style={selectedCategory ? styles.pickerButtonText : styles.pickerButtonPlaceholder}>
+              {selectedCategory 
+                ? categories.find(c => c.id === selectedCategory)?.name 
+                : '카테고리를 선택해주세요'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.label}>보관 장소</Text>
+          <TouchableOpacity 
+            style={styles.pickerButton}
+            onPress={() => {
+              setModalType('storage');
+              setModalVisible(true);
+            }}
+          >
+            <Text style={selectedStorage ? styles.pickerButtonText : styles.pickerButtonPlaceholder}>
+              {selectedStorage 
+                ? storageTypes.find(s => s.id === selectedStorage)?.name 
+                : '보관 장소를 선택해주세요'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.label}>유통기한</Text>
+          <TouchableOpacity 
+            style={styles.datePickerButton}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text style={styles.dateText}>{formatKoreanDate(expiryDate)}</Text>
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={expiryDate}
+              mode="date"
+              display="default"
+              onChange={onDateChange}
+              minimumDate={new Date()}
+            />
+          )}
+        </View>
+
+        <TouchableOpacity style={styles.addButton}>
+          <Text style={styles.addButtonText}>추가하기</Text>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+      {renderModal()}
+    </KeyboardAvoidingView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
   container: {
-    padding: 20,
-    backgroundColor: '#fff',
-    paddingBottom: 60,
+    flex: 1,
+    backgroundColor: '#F5FAFF',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 16,
   },
   title: {
+    fontSize: 24,
     fontWeight: 'bold',
-    fontSize: 20,
-    marginBottom: 10,
-    color: '#2C3E50',
+    color: '#333',
+    marginBottom: 20,
+    fontFamily: 'NotoSansKR-Bold',
+  },
+  section: {
+    marginBottom: 24,
   },
   label: {
-    marginTop: 10,
+    fontSize: 16,
+    color: '#2C3E50',
+    marginBottom: 8,
     fontWeight: '500',
-    color: '#444',
   },
   input: {
-    borderBottomWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 10,
-    paddingVertical: 4,
-  },
-  pickerWrapper: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 16,
+    fontSize: 16,
+    color: '#2C3E50',
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    marginBottom: 10,
+    borderColor: '#E0E0E0',
   },
-  stepperRow: {
-    flexDirection: 'row',
+  pickerButton: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  pickerButtonText: {
+    fontSize: 16,
+    color: '#2C3E50',
+  },
+  pickerButtonPlaceholder: {
+    fontSize: 16,
+    color: '#999',
+  },
+  datePickerButton: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  dateText: {
+    fontSize: 16,
+    color: '#2C3E50',
+  },
+  addButton: {
+    backgroundColor: '#4A90E2',
+    borderRadius: 10,
+    padding: 16,
     alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 10,
-  },
-  stepBtn: {
-    width: 40,
-    height: 40,
-    backgroundColor: '#4DA8DA',
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 10,
-  },
-  stepText: {
-    fontSize: 24,
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  qtyText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    paddingHorizontal: 20,
-  },
-  submitBtn: {
-    backgroundColor: '#4DA8DA',
-    padding: 12,
-    borderRadius: 8,
     marginTop: 20,
-    alignItems: 'center',
   },
-  submitText: {
-    color: '#fff',
+  addButtonText: {
+    color: 'white',
+    fontSize: 16,
     fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    maxHeight: '50%',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+    color: '#2C3E50',
+  },
+  modalScrollView: {
+    maxHeight: '80%',
+  },
+  modalItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  modalItemText: {
+    fontSize: 16,
+    color: '#2C3E50',
   },
 });
+
+export default AddFoodScreen;
