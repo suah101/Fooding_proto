@@ -71,24 +71,26 @@ export default function WasteScreen() {
       {/* 월별 폐기량 추이 섹션 */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>📅 월별 폐기량 추이</Text>
+        <View style={styles.chartContainer}>
+          <BarChart
+            data={monthlyChartData}
+            width={screenWidth - 70} 
+            height={200}
+            fromZero
+            yAxisInterval={1}
+            chartConfig={{
+              backgroundGradientFrom: '#FFF',
+              backgroundGradientTo: '#FFF',
+              decimalPlaces: 0,
+              color: (opacity = 1) => `rgba(77, 136, 255, ${opacity})`,
+              labelColor: () => '#2C3E50',
+            }}
+            style={{ borderRadius: 8 }}
+            yAxisLabel=""
+            yAxisSuffix=""
+          />
+        </View>
       </View>
-      <BarChart
-        data={monthlyChartData}
-        width={screenWidth - 40}
-        height={220}
-        fromZero
-        yAxisInterval={1}
-        chartConfig={{
-          backgroundGradientFrom: '#FFF',
-          backgroundGradientTo: '#FFF',
-          decimalPlaces: 0,
-          color: (opacity = 1) => `rgba(77, 136, 255, ${opacity})`,
-          labelColor: () => '#2C3E50',
-        }}
-        style={{ marginVertical: 20, borderRadius: 12 }}
-        yAxisLabel=""
-        yAxisSuffix=""
-      />
       <Text style={styles.feedback}>{feedback}</Text>
 
       {/* 폐기 상세 내역 섹션 */}
@@ -147,10 +149,17 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     marginTop: 20,
-    marginBottom: 40, 
+    marginBottom: 40,
     lineHeight: 22,
     borderLeftWidth: 4,
     borderLeftColor: '#E74C3C',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#F5C9C5',
   },
   summaryItem: {
     backgroundColor: 'white',
@@ -158,10 +167,12 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   category: {
     fontSize: 17,
@@ -180,5 +191,18 @@ const styles = StyleSheet.create({
     color: '#555',
     marginLeft: 10,
     marginTop: 5,
+  },
+  chartContainer: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 15,
+    marginTop: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
 });
