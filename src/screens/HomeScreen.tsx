@@ -133,8 +133,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 10,
     padding: 12,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
     borderWidth: 1,
-    borderColor: '#aaadb3',
+    borderColor: '#e0e0e0',
   },
   foodName: {
     fontSize: 16,
@@ -159,9 +165,15 @@ const styles = StyleSheet.create({
   recipeCard: {
     marginTop: 10,
     padding: 12,
-    backgroundColor: '#fff6e5',
+    backgroundColor: '#FFE8D6', // 파스텔 오렌지 배경색
     borderRadius: 10,
-    borderColor: '#FFDCA8',
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
     borderWidth: 1,
+    borderColor: '#FFD1A1', // 연한 오렌지 테두리색
   },
 });
