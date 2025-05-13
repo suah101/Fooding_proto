@@ -1,3 +1,9 @@
+/**
+ * 변경 이력:
+ * 1. 2025-05-13: 오른쪽 상단 프로필 아이콘 제거 및 헤더 디자인 개선
+ * 2. 2025-05-13: 배경색을 #F5FAFF로 통일 (WasteStatsScreen과 일치)
+ * 3. 2025-05-13: 인사말 레이아웃을 FridgeScreen과 동일하게 조정
+ */
 // ✅ src/screens/HomeScreen.tsx
 import React, { useState } from 'react';
 import {
@@ -9,7 +15,6 @@ import {
   Platform,
   StatusBar,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
 export default function HomeScreen() {
@@ -46,15 +51,10 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={[styles.wrapper, { paddingTop: topPadding }]}>
-      <View style={styles.headerRow}>
-        <Text style={styles.greeting}>👋  안녕하세요, {userName}님!</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('MyPage')}>
-          <Icon name="person-circle-outline" size={30} color="#2C3E50" />
-        </TouchableOpacity>
-      </View>
+    <View style={[styles.container, { paddingTop: topPadding }]}>
+      <Text style={styles.title}>👋  안녕하세요, {userName}님!</Text>
 
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.scrollView}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>⏰ 임박한 식재료</Text>
 
@@ -95,26 +95,19 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    backgroundColor: '#E6F4FA',
-  },
   container: {
-    padding: 20,
-    backgroundColor: '#E6F4FA',
+    flex: 1,
+    backgroundColor: '#F5FAFF',
+    padding: 16,
   },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-    backgroundColor: '#E6F4FA',
+  scrollView: {
+    flex: 1,
   },
-  greeting: {
-    fontSize: 19,
-    fontWeight: '500',
-    color: '#2C3E50',
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 20,
   },
   section: {
     marginVertical: 15,
