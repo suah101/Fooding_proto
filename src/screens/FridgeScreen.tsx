@@ -1,9 +1,3 @@
-/**
- * 변경 이력:
- * 1. 2025-05-13: 냉장고 그래픽 UI 추가 및 식재료 목록 디자인 개선
- * 2. 2025-05-13: 배경색을 #F5FAFF로 통일 (WasteStatsScreen과 일치)
- * 3. 2025-05-13: 타이틀 스타일 통일
- */
 import React, { useState } from 'react';
 import {
   View,
@@ -13,11 +7,19 @@ import {
   TouchableOpacity,
   Platform,
   StatusBar,
-  Dimensions,
-  Image
+  Dimensions
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { StackNavigationProp } from '@react-navigation/stack';
+
+// 네비게이션 타입 정의
+type FridgeStackParamList = {
+  FridgeMain: undefined;
+  AddFoodScreen: undefined;
+};
+
+type FridgeScreenNavigationProp = StackNavigationProp<FridgeStackParamList, 'FridgeMain'>;
 
 // 냉장고 구역 타입 정의
 type FridgeSection = {
@@ -71,7 +73,7 @@ const fridgeSections: FridgeSection[] = [
 const { width } = Dimensions.get('window');
 
 const FridgeScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<FridgeScreenNavigationProp>();
   const [selectedSection, setSelectedSection] = useState<FridgeSection | null>(null);
 
   const formatDday = (dateStr: string) => {
@@ -88,7 +90,7 @@ const FridgeScreen = () => {
   return (
     <View style={[styles.container, { paddingTop: topPadding }]}>
       <Text style={styles.title}>🧊 나의 냉장고</Text>
-      
+
       {/* 냉장고 그래픽 영역 */}
       <View style={styles.fridgeContainer}>
         <View style={styles.fridgeGraphic}>
@@ -115,7 +117,7 @@ const FridgeScreen = () => {
         <Text style={styles.subtitle}>
           {selectedSection ? `${selectedSection.name}의 식재료` : '구역을 선택하세요'}
         </Text>
-        
+
         {selectedSection ? (
           <ScrollView style={styles.itemsList}>
             {selectedSection.items.map((item) => (
@@ -142,7 +144,7 @@ const FridgeScreen = () => {
       </View>
 
       {/* 하단 버튼 */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.addButton}
         onPress={() => navigation.navigate('AddFoodScreen')}
       >

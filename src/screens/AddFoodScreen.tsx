@@ -110,7 +110,7 @@ const AddFoodScreen = () => {
         style={[styles.scrollView, { paddingTop: topPadding }]}
         contentContainerStyle={styles.scrollContent}
       >
-        <Text style={styles.title}>🥑 새로운 식재료 등록</Text>
+        
         
         <View style={styles.section}>
           <Text style={styles.label}>식재료 이름</Text>

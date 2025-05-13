@@ -3,9 +3,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import HomeScreen from '../screens/HomeScreen';
-import FridgeScreen from '../screens/FridgeScreen';
-import AddFoodScreen from '../screens/AddFoodScreen';
-import WasteStatsScreen from '../screens/WasteStatsScreen'; // 📈 새 통계 화면
+// ❗️FridgeScreen 제거하고 FridgeStack으로 변경
+import FridgeStack from '../screens/FridgeStack';
+import WasteStatsScreen from '../screens/WasteStatsScreen';
 import MyPageScreen from '../screens/MyPageScreen';
 
 const Tab = createBottomTabNavigator();
@@ -41,8 +41,7 @@ export default function BottomTabNavigator() {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Fridge" component={FridgeScreen} />
-      <Tab.Screen name="Add" component={AddFoodScreen} />
+      <Tab.Screen name="Fridge" component={FridgeStack} />
       <Tab.Screen name="Stats" component={WasteStatsScreen} />
       <Tab.Screen name="My" component={MyPageScreen} />
     </Tab.Navigator>

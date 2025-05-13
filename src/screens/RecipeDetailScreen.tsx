@@ -1,5 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity, 
+  SafeAreaView,
+  StatusBar,
+  Platform
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 export default function RecipeDetailScreen() {
@@ -19,54 +28,84 @@ export default function RecipeDetailScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-        <Text style={styles.backText}>◀ 돌아가기</Text>
-      </TouchableOpacity>
-
-      <Text style={styles.title}>{recipe.title}</Text>
-
-      <View style={styles.stepsContainer}>
-        {recipe.steps.length > 0 ? (
-          recipe.steps.map((step, idx) => (
-            <View key={idx} style={styles.stepCard}>
-              <Text style={styles.stepNumber}>🍳 STEP {idx + 1}</Text>
-              <Text style={styles.stepText}>{step}</Text>
-            </View>
-          ))
-        ) : (
-          <Text style={styles.noStepsText}>요리 단계 정보가 없습니다.</Text>
-        )}
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" />
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity 
+            onPress={() => navigation.goBack()} 
+            style={styles.backButton}
+          >
+            <Text style={styles.backText}>◀</Text>
+          </TouchableOpacity>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>{recipe.title}</Text>
+          </View>
+          <View style={styles.placeholder} />
+        </View>
+        
+        <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
+          {recipe.steps.length > 0 ? (
+            recipe.steps.map((step, index) => (
+              <View key={index} style={styles.stepCard}>
+                <Text style={styles.stepNumber}>🍳 STEP {index + 1}</Text>
+                <Text style={styles.stepText}>{step}</Text>
+              </View>
+            ))
+          ) : (
+            <Text style={styles.noStepsText}>요리 단계 정보가 없습니다.</Text>
+          )}
+        </ScrollView>
       </View>
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
     backgroundColor: '#FFFDF9',
   },
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFDF9',
+    paddingTop: Platform.OS === 'ios' ? 0 : StatusBar.currentHeight,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
   backButton: {
-    marginBottom: 20,
+    width: 30,
   },
   backText: {
     fontSize: 16,
     color: '#2C3E50',
   },
+  titleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    marginRight: 30, 
+  },
   title: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#3E2723',
-    marginBottom: 20,
     textAlign: 'center',
   },
-  stepsContainer: {
-    marginTop: 10,
+  placeholder: {
+    width: 30, 
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 40,
   },
   stepCard: {
     backgroundColor: '#FFF',
